@@ -5,14 +5,13 @@ using namespace std;
 
 void CreateDBN(void);
 void InferenceDBN(void);
-//void UnrollDBN(void);
+void UnrollDBN(void);
 
 int main()
 {
-   //EnableXdslFormat();
    CreateDBN();
    InferenceDBN();
-   //UnrollDBN();
+   UnrollDBN();
    return DSL_OKAY;
 }
 
@@ -81,8 +80,6 @@ void CreateDBN(void)
    theProbs[5] = 0.999;
    theProbs[6] = 0.01;
    theProbs[7] = 0.99;
-   //theDBN.GetNode(rain)->TemporalDefinition()->SetTemporalProbabilities(theProbs , 1);
-
    ((DSL_cpt*)theDBN.GetNode(rain)->Definition())->SetTemporalProbabilities(1, theProbs); 
 
 
@@ -116,7 +113,6 @@ void InferenceDBN(void)
    DSL_Dmatrix abeliefs;
    DSL_Dmatrix rbeliefs;
    abeliefs = *theDBN.GetNode(area)->Value()->GetMatrix();
-   //theDBN.GetNode(rain)->Value()->GetTemporalValue(rbeliefs , 7);
    rbeliefs = *theDBN.GetNode(rain)->Value()->GetMatrix();
    // Print beliefs.
    DSL_idArray *stateNames;
@@ -132,4 +128,19 @@ void InferenceDBN(void)
    cout << "  " << (*stateNames)[0] << "\t\t" << rbeliefs[0] << endl;
    cout << "  " << (*stateNames)[1] << "\t\t" << rbeliefs[1] << endl;
    cout << endl;
+}
+
+void UnrollDBN(void)
+{
+   DSL_network theDBN;
+   theDBN.ReadFile("dbn.xdsl");
+
+   // Unroll DBN for a period of 8 days.
+   theDBN.SetNumberOfSlices(8);
+
+   // Save unrolled DBN to a file.
+   DSL_network unrolled;
+   std::vector< int > dontcare;
+   theDBN.UnrollNetwork(unrolled,dontcare);
+   unrolled.WriteFile("dbn_unrolled_8.xdsl");
 }
